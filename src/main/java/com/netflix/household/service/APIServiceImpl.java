@@ -1,9 +1,7 @@
 package com.netflix.household.service;
 
-import com.netflix.household.dto.ReqEmail;
-import groovy.util.logging.Log4j;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -15,7 +13,7 @@ import java.util.regex.Pattern;
 @Service
 public class APIServiceImpl implements APIService {
 
-    private static final Logger log = LogManager.getLogger(APIService.class);
+    private static final Logger logger = LogManager.getLogger(APIServiceImpl.class);
     @Override
     public  HashMap<String, String>  getCodes(String email) throws Exception{
         try {
@@ -46,11 +44,9 @@ public class APIServiceImpl implements APIService {
                     emailList.add(matcherForEmail.group());
 
                 }
-                System.out.println(urlList);
-                System.out.println(emailList);
 
-                log.info("URLS: {}"+urlList);
-                log.info("EmailList: {}"+emailList);
+                logger.info( "URLs : {}",urlList);
+                logger.info("Email List : {}",emailList);
 
                 for (String url : urlList) {
                     //System.out.println(url);
