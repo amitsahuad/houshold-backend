@@ -1,4 +1,4 @@
-FROM maven:3.9.4-openjdk-22 AS build
+FROM maven:3.9.6-eclipse-temurin-22-jammy AS build
 COPY . .
 RUN mvn clean package -DskipTests
 
