@@ -35,9 +35,9 @@ class GmailReaderClass {
      * If modifying these scopes, delete your previously saved tokens/ folder.
      */
     public static final List<String> SCOPES = Collections.singletonList(GmailScopes.MAIL_GOOGLE_COM);
-    public static final String CREDENTIALS_FILE_PATH = "/etc/secrets/creds.json";
+    public static final String CREDENTIALS_FILE_PATH = "testnode/creds.json";
 
-    public static final String TOKENS_DIRECTORY_PATH = "/etc/secrets";
+    public static final String TOKENS_DIRECTORY_PATH = "testnode";
     /**
      * Creates an authorized Credential object.
      * @param HTTP_TRANSPORT The network HTTP Transport.
@@ -58,7 +58,7 @@ class GmailReaderClass {
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
                 HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
                 .setDataStoreFactory(new FileDataStoreFactory(new File(TOKENS_DIRECTORY_PATH)))
-                .setAccessType("offline")
+                .setAccessType("online")
                 .build();
         LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(9999).build();
         return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
