@@ -35,9 +35,9 @@ class GmailReaderClass {
      * If modifying these scopes, delete your previously saved tokens/ folder.
      */
     public static final List<String> SCOPES = Collections.singletonList(GmailScopes.MAIL_GOOGLE_COM);
-    public static final String CREDENTIALS_FILE_PATH = System.getProperty("user.dir") + "\\testnode\\creds.json";
+    public static final String CREDENTIALS_FILE_PATH = "testnode/creds.json";
 
-    public static final String TOKENS_DIRECTORY_PATH = System.getProperty("user.dir")+"\\testnode";
+    public static final String TOKENS_DIRECTORY_PATH = "testnode";
     /**
      * Creates an authorized Credential object.
      * @param HTTP_TRANSPORT The network HTTP Transport.
