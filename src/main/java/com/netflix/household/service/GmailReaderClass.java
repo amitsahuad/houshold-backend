@@ -15,6 +15,8 @@ import com.google.api.services.gmail.GmailScopes;
 import com.google.api.services.gmail.model.ListMessagesResponse;
 import com.google.api.services.gmail.model.Message;
 import io.restassured.path.json.JsonPath;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -25,14 +27,17 @@ class GmailReaderClass {
     public static final String APPLICATION_NAME = "Demo project";
     public static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     public static final String USER_ID = "me";
+
+
+    private static final Logger logger = LogManager.getLogger(GmailReaderClass.class);
     /**
      * Global instance of the scopes required by this quickstart.
      * If modifying these scopes, delete your previously saved tokens/ folder.
      */
     public static final List<String> SCOPES = Collections.singletonList(GmailScopes.MAIL_GOOGLE_COM);
-    public static final String CREDENTIALS_FILE_PATH = System.getProperty("user.dir") + "creds.json";
+    public static final String CREDENTIALS_FILE_PATH = System.getProperty("user.dir") + "\\testnode\\creds.json";
 
-    public static final String TOKENS_DIRECTORY_PATH = System.getProperty("user.dir");
+    public static final String TOKENS_DIRECTORY_PATH = System.getProperty("user.dir")+"\\testnode";
     /**
      * Creates an authorized Credential object.
      * @param HTTP_TRANSPORT The network HTTP Transport.
@@ -40,6 +45,9 @@ class GmailReaderClass {
      * @throws IOException If the buyercredentials.json file cannot be found.
      */
     public static Credential getCredentials (final NetHttpTransport HTTP_TRANSPORT) throws IOException {
+        System.out.println(CREDENTIALS_FILE_PATH+"||"+TOKENS_DIRECTORY_PATH);
+        logger.info("PATH : {}", CREDENTIALS_FILE_PATH);
+        logger.info("PATH : {}", TOKENS_DIRECTORY_PATH);
         // Load client secrets.
         InputStream in = Files.newInputStream(new File(CREDENTIALS_FILE_PATH).toPath());
         if (in == null) {
