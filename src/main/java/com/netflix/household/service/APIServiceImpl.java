@@ -13,10 +13,16 @@ import java.util.regex.Pattern;
 @Service
 public class APIServiceImpl implements APIService {
 
+    private static int count = 0;
+
     private static final Logger logger = LogManager.getLogger(APIServiceImpl.class);
+
     @Override
-    public  HashMap<String, String>  getCodes(String email) throws Exception{
+    public HashMap<String, String> getCodes(String email) throws Exception {
+        System.out.println("Email Requested : "+email);
         try {
+            count++;
+            System.out.println("Number of requests :" + count);
             List<HashMap<String, String>> hms = GmailReaderClass.getGmailData(email);
             HashMap<String, String> answer = new HashMap<>();
 
@@ -45,8 +51,8 @@ public class APIServiceImpl implements APIService {
 
                 }
 
-                logger.info( "URLs : {}",urlList);
-                logger.info("Email List : {}",emailList);
+                logger.info("URLs : {}", urlList);
+                logger.info("Email List : {}", emailList);
 
                 for (String url : urlList) {
                     //System.out.println(url);
@@ -66,13 +72,12 @@ public class APIServiceImpl implements APIService {
                             // Extract and print the next 5 characters
                             //System.out.println(result);
                             String code = result.substring(extractStartIndex, extractStartIndex + 4);
-                            System.out.println("The next 5 characters after '" + subString + "' are: " + code);
-
+                            System.out.println("Code is " + code);
                             answer.put("email", emailList.getLast());
                             answer.put("code", code);
-                            ;
-                            System.out.println(emailCode);
+                            System.out.println(answer);
                         }
+                        
 
 
 //                if(result.contains(subString)){
@@ -84,19 +89,19 @@ public class APIServiceImpl implements APIService {
 
 
                     } else {
-                        HashMap<String,String> hash = new HashMap<>();
-                        hash.put("code","Code not found, Request again");
+                        HashMap<String, String> hash = new HashMap<>();
+                        hash.put("code", "Code Expired");
 
                         return hash;
                     }
                 }
             }
             return answer;
-        }
-        catch (Exception e){
-            HashMap<String,String> hash = new HashMap<>();
-            hash.put("code","Code not found, Request again");
+        } catch (Exception e) {
+            HashMap<String, String> hash = new HashMap<>();
+            hash.put("code", "Code not found, Request again");
             return hash;
         }
     }
+
 }
