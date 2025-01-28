@@ -27,22 +27,30 @@ public class APIServiceImpl implements APIService {
             HashMap<String, String> answer = new HashMap<>();
 
             String regexForURL = "https:\\/\\/www\\.netflix\\.com\\/account\\/travel\\/verify\\?nftoken=[A-Za-z0-9%+\\/=]+&messageGuid=[a-f0-9-]+";
+            String regexForHouseHold= "https:\\/\\/www\\.netflix\\.com\\/account\\/update-primary-location\\?nftoken=[a-zA-Z0-9+/=]+&g=[a-f0-9\\-]+&lnktrk=[a-zA-Z0-9]+&operation=update&lkid=[a-zA-Z0-9_]+";
             String regexForEmail = "\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b";
 
             Pattern patternForURL = Pattern.compile(regexForURL, Pattern.CASE_INSENSITIVE);
+            Pattern patternForHouseHold = Pattern.compile(regexForHouseHold, Pattern.CASE_INSENSITIVE);
             Pattern patternForEmail = Pattern.compile(regexForEmail, Pattern.CASE_INSENSITIVE);
 
             for (HashMap<String, String> hm : hms) {
                 List<String> urlList = new ArrayList<>();
+                List<String> houseHoldList = new ArrayList<>();
                 List<String> emailList = new ArrayList<>();
 
                 Matcher matcherForURL = patternForURL.matcher(hm.get("body"));
+                Matcher matcherForHouseHold = patternForHouseHold.matcher(hm.get("body"));
                 Matcher matcherForEmail = patternForEmail.matcher(hm.get("body"));
 
                 HashMap<String, String> emailCode = new HashMap<>();
                 while (matcherForURL.find()) {
                     // Add the matched URL to the ArrayList
                     urlList.add(matcherForURL.group());
+                }
+                while (matcherForHouseHold.find()) {
+                    // Add the matched URL to the ArrayList
+                    houseHoldList.add(matcherForHouseHold.group());
                 }
 
                 while (matcherForEmail.find()) {
@@ -52,32 +60,34 @@ public class APIServiceImpl implements APIService {
                 }
 
                 logger.info("URLs : {}", urlList);
+                logger.info("HouseHold : {}", houseHoldList);
                 logger.info("Email List : {}", emailList);
 
-                for (String url : urlList) {
-                    //System.out.println(url);
-                    RestTemplate restTemplate = new RestTemplate();
-                    String result = restTemplate.getForObject(url, String.class);
-                    assert result != null;
-                    String subString = "<div data-uia=\"travel-verification-otp\" class=\"challenge-code\">";
+                if(!urlList.isEmpty())
+                {
+                    for (String url : urlList) {
+                        //System.out.println(url);
+                        RestTemplate restTemplate = new RestTemplate();
+                        String result = restTemplate.getForObject(url, String.class);
+                        assert result != null;
+                        String subString = "<div data-uia=\"travel-verification-otp\" class=\"challenge-code\">";
 
-                    int startIndex = result.indexOf(subString);
+                        int startIndex = result.indexOf(subString);
 
-                    if (startIndex != -1) {
-                        // Calculate the starting index for the next 5 characters
-                        int extractStartIndex = startIndex + subString.length();
+                        if (startIndex != -1) {
+                            // Calculate the starting index for the next 5 characters
+                            int extractStartIndex = startIndex + subString.length();
 
-                        // Ensure that there are at least 5 characters after the substring
-                        if (extractStartIndex + 5 <= result.length()) {
-                            // Extract and print the next 5 characters
-                            //System.out.println(result);
-                            String code = result.substring(extractStartIndex, extractStartIndex + 4);
-                            System.out.println("Code is " + code);
-                            answer.put("email", emailList.getLast());
-                            answer.put("code", code);
-                            System.out.println(answer);
-                        }
-                        
+                            // Ensure that there are at least 5 characters after the substring
+                            if (extractStartIndex + 5 <= result.length()) {
+                                // Extract and print the next 5 characters
+                                //System.out.println(result);
+                                String code = result.substring(extractStartIndex, extractStartIndex + 4);
+                                System.out.println("Code is " + code);
+                                answer.put("email", emailList.getLast());
+                                answer.put("code", code);
+                                System.out.println(answer);
+                            }
 
 
 //                if(result.contains(subString)){
@@ -88,12 +98,45 @@ public class APIServiceImpl implements APIService {
 //                    }
 
 
-                    } else {
-                        HashMap<String, String> hash = new HashMap<>();
-                        hash.put("code", "Code Expired");
+                        } else {
+                            HashMap<String, String> hash = new HashMap<>();
+                            hash.put("code", "Code Expired");
 
-                        return hash;
+                            return hash;
+                        }
                     }
+
+
+
+
+
+
+
+
+                }
+                else {
+                    answer.put("email", emailList.getLast());
+                    answer.put("code", houseHoldList.getFirst());
+
+//                    for(String url : houseHoldList) {
+//                        RestTemplate restTemplate = new RestTemplate();
+//                        String result = restTemplate.getForObject(url, String.class);
+//                        assert result != null;
+//
+//                        System.out.println(result);
+//                        String subString = "content=\"nflx://";
+//
+//                        int startIndex = result.indexOf(subString);
+//                        //System.out.println(startIndex);
+//                        if(startIndex != -1) {
+//                            String code = result.substring(startIndex+16, startIndex + 190);
+////                            code="www.";
+//                            System.out.println(code);
+//
+//                        }
+//
+//                    }
+
                 }
             }
             return answer;
