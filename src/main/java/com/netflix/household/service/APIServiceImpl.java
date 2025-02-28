@@ -17,6 +17,81 @@ public class APIServiceImpl implements APIService {
 
     private static final Logger logger = LogManager.getLogger(APIServiceImpl.class);
 
+
+    @Override
+    public HashMap<String, String> getLoginLink(String email) throws Exception {
+        HashMap<String, String> responsePayload = new HashMap<>();
+        responsePayload.put("email",email);
+        System.out.println("Email Requested : "+email);
+
+        try {
+            count++;
+            System.out.println("Number of requests :" + count);
+            List<HashMap<String, String>> hms = GmailReaderClassForCode.getGmailData(email);
+            StringBuilder loginCode = new StringBuilder();
+            for (HashMap<String, String> hm : hms) {
+                if (hm.get("subject").equals("Un nuevo dispositivo está usando tu cuenta") || hm.get("subject").equals("Perangkat baru menggunakan akunmu\n") || hm.get("subject").equals("A new device is using your account\n")) {
+
+                    String regexPattern = "https://www\\.netflix\\.com/(notificationsettings/email|password)\\?g=[\\w-]+&lkid=URL_[\\w_]+&lnktrk=EVO(&[\\w%=+/]+)+";
+                    Pattern regexForPassLink = Pattern.compile(regexPattern);
+                    Matcher matcherForPassLink = regexForPassLink.matcher(hm.get("body"));
+                    while(matcherForPassLink.find()) {
+                        // Add the matched URL to the ArrayList
+                        loginCode.append(matcherForPassLink.group());
+                        responsePayload.put("code", String.valueOf(loginCode));
+                        return responsePayload;
+                    }
+                    System.out.println(hm);
+                }
+            }
+        } catch (Exception e) {
+            HashMap<String, String> hash = new HashMap<>();
+            hash.put("code", "Link not found, Please login first using code then try again");
+            return hash;
+        }
+
+
+        return responsePayload;
+    }
+
+    @Override
+    public HashMap<String, String> getLoginCodes(String email) throws Exception {
+        HashMap<String, String> responsePayload = new HashMap<>();
+        responsePayload.put("email",email);
+        System.out.println("Email Requested : "+email);
+        try {
+            count++;
+            System.out.println("Number of requests :" + count);
+            List<HashMap<String, String>> hms = GmailReaderClassForCode.getGmailData(email);
+            StringBuilder loginCode= new StringBuilder();
+            for (HashMap<String, String> hm : hms) {
+            if(hm.get("subject").equals("Netflix: Tu código de inicio de sesión")||hm.get("subject").equals("Netflix: Your sign-in code")||hm.get("subject").equals("Netflix: Kode masukmu")){
+                Pattern exactlyFourDigits = Pattern.compile("\\b(\\d{4})\\b");
+                    Matcher matcherForHouseHold = exactlyFourDigits.matcher(hm.get("body"));
+                    while(matcherForHouseHold.find()) {
+                        // Add the matched URL to the ArrayList
+                        loginCode.append(matcherForHouseHold.group());
+                        responsePayload.put("code", String.valueOf(loginCode));
+                        return responsePayload;
+                    }
+            }
+
+            else{
+                HashMap<String, String> hash = new HashMap<>();
+                hash.put("code", "Resend Code.. No code found");
+                return hash;
+            }
+            }
+        } catch (Exception e) {
+            HashMap<String, String> hash = new HashMap<>();
+            hash.put("code", "Code not found, Request again");
+            return hash;
+        }
+
+
+        return responsePayload;
+    }
+
     @Override
     public HashMap<String, String> getCodes(String email) throws Exception {
         System.out.println("Email Requested : "+email);
@@ -35,6 +110,7 @@ public class APIServiceImpl implements APIService {
             Pattern patternForEmail = Pattern.compile(regexForEmail, Pattern.CASE_INSENSITIVE);
 
             for (HashMap<String, String> hm : hms) {
+
                 List<String> urlList = new ArrayList<>();
                 List<String> houseHoldList = new ArrayList<>();
                 List<String> emailList = new ArrayList<>();
@@ -89,14 +165,12 @@ public class APIServiceImpl implements APIService {
                                 System.out.println(answer);
                             }
 
-
 //                if(result.contains(subString)){
 //                    System.out.println(result);
 //                    System.out.println(result.indexOf("<div data-uia=\"travel-verification-otp\" class=\"challenge-code\">")+"AMIT");
 //                    for(int i=0;i<=6;i++){
 //                        System.out.println(result.charAt(result.indexOf("<div data-uia=\"travel-verification-otp\" class=\"challenge-code\">"))+i);
 //                    }
-
 
                         } else {
                             HashMap<String, String> hash = new HashMap<>();
@@ -105,14 +179,6 @@ public class APIServiceImpl implements APIService {
                             return hash;
                         }
                     }
-
-
-
-
-
-
-
-
                 }
                 else {
                     answer.put("email", emailList.getLast());
